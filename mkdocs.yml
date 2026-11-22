@@ -1,0 +1,9 @@
+site_name: agentcausal
+site_description: Multi-turn causal attribution, counterfactual guardrail evaluation, and anytime-valid statistical auditing of LLM agents.
+repo_url: https://github.com/lucher777/agentcausal
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Tutorial: tutorial.md
+  - API Reference: api.md

@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentcausal"
+version = "0.1.0"
+description = "Multi-turn causal attribution, counterfactual guardrail evaluation, and anytime-valid statistical auditing of LLM agents."
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Kang Liu", email = "peacekange@gmail.com"}
+]
+keywords = [
+    "causal inference",
+    "off-policy evaluation",
+    "doubly robust",
+    "llm agents",
+    "guardrails",
+    "anytime-valid inference",
+    "e-values",
+    "benchmark contamination",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=1.23",
+    "scipy>=1.10",
+    "scikit-learn>=1.2",
+]
+
+[project.optional-dependencies]
+gpu = ["torch>=2.1"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1"]
+docs = ["mkdocs>=1.5", "mkdocs-material>=9.4"]
+
+[project.scripts]
+agentcausal = "agentcausal.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/lucher777/agentcausal"
+Repository = "https://github.com/lucher777/agentcausal"
+Issues = "https://github.com/lucher777/agentcausal/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"agentcausal.data" = ["*.npz"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

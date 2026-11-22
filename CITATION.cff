@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use agentcausal in your research, please cite this software."
+title: "agentcausal: Multi-Turn Causal Attribution, Counterfactual Guardrail Evaluation, and Anytime-Valid Statistical Auditing of LLM Agents"
+type: software
+version: 0.1.0
+date-released: 2026-11-19
+license: MIT
+repository-code: "https://github.com/lucher777/agentcausal"
+authors:
+  - family-names: Liu
+    given-names: Kang
+    email: peacekange@gmail.com
+    orcid: "https://orcid.org/0009-0004-3214-505X"
+    affiliation: "Faculty of Education, Shandong Normal University, Jinan, China"
+keywords:
+  - causal inference
+  - off-policy evaluation
+  - llm agents
+  - guardrails
+  - anytime-valid inference
+  - e-values
