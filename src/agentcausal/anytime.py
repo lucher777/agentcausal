@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Anytime-valid sequential betting e-processes and time-uniform confidence sequences.
 
 Implements predictable plug-in betting e-processes and empirical-Bernstein time-uniform
@@ -203,10 +205,12 @@ class AnytimeAuditor:
         mu_hat = (0.5 + csum) / (t + 1.0)
         mu_prev = np.concatenate([[0.5], mu_hat[:-1]])
 
-        # Predictable empirical variance proxy v_t = (U_t - mu_{t-1})^2
-        v_t = (u - mu_prev) ** 2
+        # Squared predictable residuals; the CS radius uses v_t = 4 (U_t - mu_{t-1})^2
+        # exactly as in Waudby-Smith & Ramdas (2024, Theorem 2).
+        resid2 = (u - mu_prev) ** 2
+        v_t = 4.0 * resid2
         sigma2_prev = np.concatenate(
-            [[0.25], (0.25 + np.cumsum(v_t)[:-1]) / (t[:-1] + 1.0)]
+            [[0.25], (0.25 + np.cumsum(resid2)[:-1]) / (t[:-1] + 1.0)]
         )
         # Predictable empirical-Bernstein weights lambda_t (bounded in (0, 0.5])
         log_term = np.log(2.0 / a)

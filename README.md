@@ -5,33 +5,46 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](pyproject.toml)
 
-`agentcausal` is a Python library that brings semiparametric causal inference, multiply-robust mediation analysis, and game-theoretic anytime-valid statistical inference to the evaluation and continuous deployment monitoring of multi-turn large language model (LLM) agents.
+`agentcausal` is a Python library for evaluating and monitoring multi-turn large language model (LLM) agents with established causal and sequential-inference estimators.
 
 ## Why `agentcausal`?
 
-Standard LLM evaluation harnesses report static pass rates or heuristic LLM-as-a-Judge scores that break down on three statistical fronts critical to deployed multi-turn agents:
+Static pass rates and judge scores cannot answer three questions that come up with deployed agents:
 
-1. **Time-varying multi-turn confounding**: Guardrails, safety filters, chain-of-thought scaffolds, and tool-call verifiers are triggered adaptively based on intermediate conversation states $S_t$, confounding naive before/after accuracy comparisons.
-2. **Safety-vs-utility path-specific trade-offs**: Guardrails simultaneously block unsafe outputs (direct safety effect) and induce over-refusal or reasoning degradation on benign queries (indirect utility cost).
-3. **Optional stopping and benchmark exposure shift**: Continuous deployment monitoring with repeated fixed-horizon $t$-tests inflates false-alarm rates above 30%, while public leaderboards suffer non-exchangeable hard-tail benchmark exposure anomalies.
+1. **Which turn mattered?** Guardrails, retrieval and verifiers are switched on depending on the conversation state, so comparing triggered with untriggered conversations is confounded.
+2. **Is a guardrail costing utility?** A guardrail can block unsafe outputs (direct effect) and also cause over-refusal on benign queries (indirect effect).
+3. **Can a live dashboard be checked every hour?** Repeated fixed-sample tests inflate false alarms (29.75% after 79 looks in our simulation, at a nominal 5%), and leaderboard gains on hard items may reflect benchmark exposure rather than ability.
 
-## Core Modules
+## Modules
 
-| Module | Class | Statistical Guarantee |
+| Module | Main entry point | What it provides |
 |---|---|---|
-| `agentcausal.ope` | `SequentialDROPE` | Cross-fitted multi-turn DR / WDR / DM / IS / WIS off-policy evaluation + exact telescoping turn-level attribution ($\sum_{t=1}^H \phi_t = V(\pi_{\text{new}}) - V(\pi_{\text{base}})$) |
-| `agentcausal.guardrail` | `GuardrailDecomposer` | Multiply-robust EIF decomposition ($\mathrm{NDE} + \mathrm{NIE} = \mathrm{ATE}$) + counterfactual safety-utility Pareto frontier |
-| `agentcausal.anytime` | `AnytimeAuditor` | Predictable plug-in betting e-processes & empirical-Bernstein confidence sequences with Ville's inequality $\alpha$-level anytime-valid FPR control |
-| `agentcausal.exposure` | `ExposureAuditor` | Model-free GPU/CPU leave-one-model-out peer-matched exposure shift & anytime-valid e-value auditing (zero parametric IRT assumptions) |
-| `agentcausal.equiv` | `run_equivalence_checks` | Strict $<10^{-10}$ numerical parity across recursive, vectorized, CPU, and CUDA GPU float64 paths |
+| `agentcausal.ope` | `SequentialDROPE` | Cross-fitted sequential DR, WDR, DM, IS and WIS off-policy evaluation with standard errors; turn-level effects that sum exactly to the total lift |
+| `agentcausal.guardrail` | `GuardrailDecomposer` | Multiply robust natural direct/indirect effect estimation (NDE + NIE = ATE) and a counterfactual safety-utility frontier |
+| `agentcausal.anytime` | `AnytimeAuditor` | Betting e-processes and empirical-Bernstein confidence sequences, valid under continuous monitoring and optional stopping |
+| `agentcausal.exposure` | `ExposureAuditor` | Leave-one-model-out audit of hard-item excess accuracy in model x item response matrices; flags are a reason for inspection, not proof of contamination |
+| `agentcausal.equiv` | `run_equivalence_checks` | Checks of numerical identities (vectorised vs recursive, CPU vs GPU) at tolerance 1e-10 |
 
 ## Installation
 
+The package is not yet on PyPI. Install from the repository:
+
 ```bash
-pip install agentcausal
-# Optional PyTorch CUDA GPU acceleration:
-pip install "agentcausal[gpu]"
+pip install "git+https://github.com/lucher777/agentcausal.git@v0.1.0"
+# optional PyTorch acceleration
+pip install "agentcausal[gpu] @ git+https://github.com/lucher777/agentcausal.git@v0.1.0"
 ```
+
+The core depends only on NumPy, SciPy and scikit-learn. PyTorch is optional; it speeds up large batched e-processes but is slower than NumPy for small off-policy workloads.
+
+## Testing
+
+```bash
+pip install -e ".[dev]"
+pytest --cov=agentcausal
+```
+
+The suite has 63 tests. Line coverage is 100% on a machine with a CUDA GPU and about 92% on CPU-only machines, where the GPU branches are skipped. CI runs on Linux, macOS and Windows with Python 3.9-3.12.
 
 ## Quickstart
 

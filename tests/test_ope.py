@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Tests for SequentialDROPE off-policy evaluation and turn-level causal attribution."""
 
 from __future__ import annotations
@@ -124,3 +126,30 @@ def test_drope_validation_errors():
     traj = simulate_multiturn_agent(n_trajectories=100, horizon=3, seed=7)
     with pytest.raises(ValueError):
         SequentialDROPE(device="cpu").evaluate(traj, method="invalid")
+
+
+def test_self_normalised_scores_average_to_ratio_estimates():
+    rng = np.random.default_rng(3)
+    n, h = 400, 4
+    rewards = rng.normal(size=(n, h))
+    rho = rng.uniform(0.3, 2.5, size=(n, h))
+    q_obs = rng.normal(size=(n, h))
+    v_hat = rng.normal(size=(n, h))
+    dr, wdr, dm, is_s, wis, _ = SequentialDROPE.compute_dr_scores_vectorized(
+        rewards, rho, q_obs, v_hat, discount=0.9, device="cpu"
+    )
+    w = np.cumprod(rho, axis=1)
+    g = 0.9 ** np.arange(h)
+    v_next = np.hstack([v_hat[:, 1:], np.zeros((n, 1))])
+    td = rewards + 0.9 * v_next - q_obs
+    wis_ratio = float(np.sum(g * (w * rewards).mean(0) / w.mean(0)))
+    wdr_ratio = float(v_hat[:, 0].mean() + np.sum(g * (w * td).mean(0) / w.mean(0)))
+    assert abs(wis.mean() - wis_ratio) < 1e-12
+    assert abs(wdr.mean() - wdr_ratio) < 1e-12
+    # Constant rewards: the ratio estimator is exactly constant, so its linearised
+    # scores must have zero variance (raw normalised products would not).
+    const = np.full((n, h), 2.0)
+    _, _, _, _, wis_c, _ = SequentialDROPE.compute_dr_scores_vectorized(
+        const, rho, q_obs, v_hat, discount=0.9, device="cpu"
+    )
+    assert np.allclose(wis_c, 2.0 * g.sum(), atol=1e-12)

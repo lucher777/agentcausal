@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Counterfactual guardrail mediation decomposition and safety-utility Pareto frontier.
 
 Implements cross-fitted multiply-robust efficient influence function (EIF) estimation

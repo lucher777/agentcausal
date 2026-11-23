@@ -1,4 +1,6 @@
-"""Model-free nonparametric benchmark exposure and contamination auditing.
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
+"""Model-free audit of hard-item excess accuracy in benchmark response matrices.
 
 Implements GPU- and CPU-accelerated leave-one-model-out peer-matched counterfactual
 projection combined with anytime-valid predictable betting e-processes to detect

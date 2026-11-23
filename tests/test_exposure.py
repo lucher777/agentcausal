@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Tests for ExposureAuditor nonparametric hard-tail benchmark exposure auditing."""
 
 from __future__ import annotations

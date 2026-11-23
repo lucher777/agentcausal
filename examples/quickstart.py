@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """End-to-end quickstart demonstrating all four modules of ``agentcausal``."""
 
 from __future__ import annotations

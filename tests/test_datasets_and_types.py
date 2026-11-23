@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Tests for dataset generators, typed containers, GPU execution, and edge cases."""
 
 from __future__ import annotations

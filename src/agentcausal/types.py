@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Typed result containers and data structures for ``agentcausal``."""
 
 from __future__ import annotations
@@ -261,7 +263,7 @@ class AnytimeAuditResult:
 
 @dataclass
 class ExposureAuditResult:
-    """Nonparametric doubly-robust benchmark exposure and contamination audit summary.
+    """Summary of a hard-item excess-accuracy (benchmark exposure) audit.
 
     Attributes:
         model_names: List of evaluated model identifiers of length ``M``.

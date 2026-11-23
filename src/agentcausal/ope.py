@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Sequential doubly-robust off-policy evaluation and turn-level causal attribution.
 
 Implements cross-fitted multi-turn Doubly Robust (DR), Weighted Doubly Robust (WDR),
@@ -215,6 +217,10 @@ class SequentialDROPE:
             discount: Discount factor ``gamma`` in ``(0, 1]``.
             device: Target compute device (``'auto'``, ``'cuda'``, ``'cuda:0'``, or ``'cpu'``).
 
+        WDR and WIS scores are delta-method linearisations of the self-normalised
+        ratio estimators: their mean equals the point estimate and their sample
+        variance estimates the asymptotic variance.
+
         Returns:
             Tuple ``(dr_scores, wdr_scores, dm_scores, is_scores, wis_scores, resolved_device)``.
         """
@@ -242,8 +248,10 @@ class SequentialDROPE:
 
             mean_cum_rho = torch.clamp(cum_rho.mean(dim=0, keepdim=True), min=1e-12)
             w_norm = cum_rho / mean_cum_rho
-            wdr_t = v_t[:, 0] + torch.sum(g_t * w_norm * td_err, dim=1)
-            wis_t = torch.sum(g_t * w_norm * r_t, dim=1)
+            c_td = (w_norm * td_err).mean(dim=0, keepdim=True)
+            c_r = (w_norm * r_t).mean(dim=0, keepdim=True)
+            wdr_t = v_t[:, 0] + torch.sum(g_t * (w_norm * (td_err - c_td) + c_td), dim=1)
+            wis_t = torch.sum(g_t * (w_norm * (r_t - c_r) + c_r), dim=1)
 
             return (
                 dr_t.cpu().numpy(),
@@ -264,8 +272,13 @@ class SequentialDROPE:
 
         mean_cum_rho = np.maximum(cum_rho.mean(axis=0, keepdims=True), 1e-12)
         w_norm = cum_rho / mean_cum_rho
-        wdr = v_hat[:, 0] + np.sum(gammas[None, :] * w_norm * td_err, axis=1)
-        wis = np.sum(gammas[None, :] * w_norm * rewards, axis=1)
+        # Self-normalised estimators are ratios of means. Their per-trajectory scores are
+        # linearised (delta method) so that the scores average to the point estimate and
+        # their sample variance gives a valid standard error.
+        c_td = (w_norm * td_err).mean(axis=0, keepdims=True)
+        c_r = (w_norm * rewards).mean(axis=0, keepdims=True)
+        wdr = v_hat[:, 0] + np.sum(gammas[None, :] * (w_norm * (td_err - c_td) + c_td), axis=1)
+        wis = np.sum(gammas[None, :] * (w_norm * (rewards - c_r) + c_r), axis=1)
         return dr, wdr, dm, is_scores, wis, resolved
 
     @staticmethod

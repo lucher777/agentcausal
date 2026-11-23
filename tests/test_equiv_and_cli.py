@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Tests for numerical parity (equiv.py), GPU parity, and CLI subcommands."""
 
 from __future__ import annotations

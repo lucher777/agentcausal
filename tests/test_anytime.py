@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Tests for AnytimeAuditor betting e-processes and time-uniform confidence sequences."""
 
 from __future__ import annotations

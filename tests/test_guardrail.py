@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Tests for GuardrailDecomposer path-specific mediation and Pareto frontier."""
 
 from __future__ import annotations

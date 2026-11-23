@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Reproducible synthetic multi-turn agent benchmarks and bundled real Open LLM slice."""
 
 from __future__ import annotations
@@ -22,6 +24,7 @@ def simulate_multiturn_agent(
     discount: float = 1.0,
     confounding_strength: float = 1.2,
     seed: int = 42,
+    n_oracle: int = 200_000,
 ) -> TrajectoryDataset:
     """Simulate a confounded multi-turn LLM agent trajectory dataset with exact ground truth.
 
@@ -40,6 +43,10 @@ def simulate_multiturn_agent(
         discount: Discount factor ``gamma`` in ``(0, 1]``.
         confounding_strength: Strength of state-to-action confounding in logging policy.
         seed: Random seed for reproducibility.
+        n_oracle: Number of Monte Carlo rollouts per hybrid policy used for the
+            ground-truth values. All ``H + 1`` hybrid policies share common random
+            numbers, so the turn-level differences are far more precise than the
+            individual values.
 
     Returns:
         ``TrajectoryDataset`` with ground-truth values in ``metadata``.
@@ -50,6 +57,8 @@ def simulate_multiturn_agent(
         raise ValueError("horizon must be >= 2.")
     if state_dim < 2:
         raise ValueError("state_dim must be >= 2.")
+    if n_oracle < 1000:
+        raise ValueError("n_oracle must be >= 1000.")
 
     rng = np.random.default_rng(seed)
 
@@ -71,7 +80,7 @@ def simulate_multiturn_agent(
         if mode == "base":
             logits = -0.6 + 0.3 * s[:, 1]
             return np.clip(_sigmoid(logits), 0.10, 0.85)
-        raise ValueError(mode)
+        raise ValueError(mode)  # pragma: no cover - internal modes are fixed
 
     def _rollout(
         n: int,
@@ -123,12 +132,12 @@ def simulate_multiturn_agent(
     )
 
     # High-precision Monte Carlo oracle ground truth for V(pi_new), V(pi_base), and turn phi_t
-    oracle_rng = np.random.default_rng(seed + 99991)
-    n_oracle = 50000
+    # Common random numbers: every hybrid policy is rolled out with the same seed.
     gammas = np.power(discount, np.arange(horizon, dtype=np.float64))
     hybrid_vals = np.zeros(horizon + 1, dtype=np.float64)
     for k in range(horizon + 1):
         sched = tuple(["new"] * k + ["base"] * (horizon - k))
+        oracle_rng = np.random.default_rng(seed + 99991)
         _, _, r_o, _ = _rollout(n_oracle, sched, oracle_rng)
         hybrid_vals[k] = float((r_o @ gammas).mean())
 

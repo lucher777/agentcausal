@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """agentcausal: Multi-turn causal attribution, counterfactual guardrail evaluation,
 and anytime-valid statistical auditing of LLM agents.
 """

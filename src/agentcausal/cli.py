@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Command-line interface for ``agentcausal``."""
 
 from __future__ import annotations
@@ -158,7 +160,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(json.dumps(payload, indent=2))
         return 0 if rep.passed else 1
 
-    return 1
+    return 1  # pragma: no cover - argparse enforces a known subcommand
 
 
 if __name__ == "__main__":  # pragma: no cover

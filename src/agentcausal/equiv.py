@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Kang Liu
 """Numerical parity and algebraic identity verification suite for ``agentcausal``."""
 
 from __future__ import annotations
